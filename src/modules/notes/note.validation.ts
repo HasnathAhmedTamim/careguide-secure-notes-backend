@@ -1,0 +1,17 @@
+import { z } from 'zod';
+
+export const createNoteSchema = z.object({
+  title: z.string().trim().min(1),
+  content: z.string().trim().min(1),
+});
+
+export const updateNoteSchema = z
+  .object({
+    title: z.string().trim().min(1).optional(),
+    content: z.string().trim().min(1).optional(),
+  })
+  .refine((data) => data.title !== undefined || data.content !== undefined, {
+    message: 'At least one of title or content is required',
+  });
+
+export const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, 'Invalid id');
