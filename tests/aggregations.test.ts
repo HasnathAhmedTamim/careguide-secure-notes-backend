@@ -59,5 +59,32 @@ describe('Aggregations', () => {
     expect(res.body.data.posts.every((p: { title: string }) => p.title.startsWith('A'))).toBe(
       true
     );
+    expect(res.body.pagination).toMatchObject({ page: 1, total: 2 });
+  });
+
+  it('paginates user posts from the $lookup pipeline', async () => {
+    const alice = await auth('AlicePage', 'alicepage@agg.com', ['chess']);
+
+    await Post.create(
+      Array.from({ length: 7 }, (_, i) => ({
+        title: `P${i + 1}`,
+        content: `Post ${i + 1}`,
+        userId: alice.user.id,
+      }))
+    );
+
+    const page1 = await request(app)
+      .get(`/api/users/${alice.user.id}/posts?page=1&limit=3`)
+      .set('Authorization', `Bearer ${alice.token}`);
+
+    const page2 = await request(app)
+      .get(`/api/users/${alice.user.id}/posts?page=2&limit=3`)
+      .set('Authorization', `Bearer ${alice.token}`);
+
+    expect(page1.status).toBe(200);
+    expect(page1.body.data.posts).toHaveLength(3);
+    expect(page1.body.pagination).toMatchObject({ page: 1, limit: 3, total: 7, totalPages: 3 });
+    expect(page2.body.data.posts).toHaveLength(3);
+    expect(page2.body.pagination.page).toBe(2);
   });
 });

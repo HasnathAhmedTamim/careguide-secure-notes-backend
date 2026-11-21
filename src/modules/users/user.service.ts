@@ -85,18 +85,29 @@ export async function groupUsersByInterests() {
 
 /**
  * Scenario 2 — single aggregation with $lookup (no findById / find / populate).
+ * Posts are paginated inside the $lookup pipeline so large lists stay manageable.
  */
-export async function getUserPostsViaLookup(id: string) {
+export async function getUserPostsViaLookup(id: string, query: Record<string, unknown> = {}) {
   const userId = objectIdSchema.parse(id);
+  const { page, limit, skip } = getPagination(query);
 
   const result = await User.collection.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(userId) } },
     {
       $lookup: {
         from: 'posts',
-        localField: '_id',
-        foreignField: 'userId',
-        as: 'posts',
+        let: { uid: '$_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$userId', '$$uid'] } } },
+          { $sort: { createdAt: -1 } },
+          {
+            $facet: {
+              items: [{ $skip: skip }, { $limit: limit }],
+              meta: [{ $count: 'total' }],
+            },
+          },
+        ],
+        as: 'postsLookup',
       },
     },
     {
@@ -111,6 +122,12 @@ export async function getUserPostsViaLookup(id: string) {
   }
 
   const doc = result[0];
+  const postsData = (doc.postsLookup?.[0] as {
+    items?: unknown[];
+    meta?: Array<{ total: number }>;
+  }) || { items: [], meta: [] };
+  const total = postsData.meta?.[0]?.total || 0;
+
   return {
     user: {
       id: doc._id,
@@ -119,6 +136,7 @@ export async function getUserPostsViaLookup(id: string) {
       role: doc.role,
       interests: doc.interests,
     },
-    posts: doc.posts,
+    posts: postsData.items || [],
+    pagination: buildPagination(total, page, limit),
   };
 }

@@ -8,6 +8,15 @@ export async function groupedByInterests(_req: Request, res: Response) {
 }
 
 export async function userPosts(req: Request, res: Response) {
-  const result = await userService.getUserPostsViaLookup(req.params.id);
-  return sendSuccess(res, result, 'User posts fetched via $lookup');
+  const result = await userService.getUserPostsViaLookup(
+    req.params.id,
+    req.query as Record<string, unknown>
+  );
+  return sendSuccess(
+    res,
+    { user: result.user, posts: result.posts },
+    'User posts fetched via $lookup',
+    200,
+    result.pagination
+  );
 }
