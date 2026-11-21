@@ -69,7 +69,12 @@ export async function groupUsersByInterests() {
     {
       $group: {
         _id: '$interests',
-        users: { $push: '$name' },
+        users: {
+          $push: {
+            id: '$_id',
+            name: '$name',
+          },
+        },
       },
     },
     { $sort: { _id: 1 } },

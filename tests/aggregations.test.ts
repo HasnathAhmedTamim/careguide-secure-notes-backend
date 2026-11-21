@@ -31,9 +31,10 @@ describe('Aggregations', () => {
     expect(res.status).toBe(200);
     expect(spy).toHaveBeenCalledTimes(1);
 
-    const groups = res.body.data as Array<{ _id: string; users: string[] }>;
+    const groups = res.body.data as Array<{ _id: string; users: Array<{ name: string }> }>;
     const football = groups.find((g) => g._id === 'football');
-    expect(football?.users).toEqual(expect.arrayContaining(['Tamim', 'Rahim']));
+    const names = football?.users.map((u) => u.name) || [];
+    expect(names).toEqual(expect.arrayContaining(['Tamim', 'Rahim']));
   });
 
   it('retrieves user posts via $lookup and excludes other users posts', async () => {
