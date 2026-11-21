@@ -10,7 +10,7 @@ async function seed() {
   await Promise.all([User.deleteMany({}), Note.deleteMany({}), Post.deleteMany({})]);
 
   const admin = await User.create({
-    name: env.SEED_ADMIN_NAME || 'Sara Rahman',
+    name: env.SEED_ADMIN_NAME || 'Hasnath Ahmed',
     email: env.SEED_ADMIN_EMAIL,
     password: env.SEED_ADMIN_PASSWORD,
     role: 'admin',
