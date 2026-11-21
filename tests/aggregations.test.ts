@@ -1,0 +1,62 @@
+import request from 'supertest';
+import { describe, expect, it, vi } from 'vitest';
+import { createApp } from '../src/app';
+import { User } from '../src/modules/users/user.model';
+import { Post } from '../src/modules/posts/post.model';
+
+const app = createApp();
+
+async function auth(name: string, email: string, interests: string[]) {
+  const res = await request(app).post('/api/auth/register').send({
+    name,
+    email,
+    password: 'secret12',
+    interests,
+  });
+  return res.body.data as { token: string; user: { id: string } };
+}
+
+describe('Aggregations', () => {
+  it('groups users by interests with exactly one aggregate call', async () => {
+    const tamim = await auth('Tamim', 'tamim@agg.com', ['football', 'coding']);
+    await auth('Rahim', 'rahim@agg.com', ['football', 'reading']);
+    await auth('Karim', 'karim@agg.com', ['coding', 'reading']);
+
+    const spy = vi.spyOn(User.collection, 'aggregate');
+
+    const res = await request(app)
+      .get('/api/users/grouped-by-interests')
+      .set('Authorization', `Bearer ${tamim.token}`);
+
+    expect(res.status).toBe(200);
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    const groups = res.body.data as Array<{ _id: string; users: string[] }>;
+    const football = groups.find((g) => g._id === 'football');
+    expect(football?.users).toEqual(expect.arrayContaining(['Tamim', 'Rahim']));
+  });
+
+  it('retrieves user posts via $lookup and excludes other users posts', async () => {
+    const alice = await auth('Alice', 'alice@agg.com', ['chess']);
+    const bob = await auth('Bob', 'bob@agg.com', ['music']);
+
+    await Post.create([
+      { title: 'A1', content: 'Alice 1', userId: alice.user.id },
+      { title: 'A2', content: 'Alice 2', userId: alice.user.id },
+      { title: 'B1', content: 'Bob 1', userId: bob.user.id },
+    ]);
+
+    const spy = vi.spyOn(User.collection, 'aggregate');
+
+    const res = await request(app)
+      .get(`/api/users/${alice.user.id}/posts`)
+      .set('Authorization', `Bearer ${bob.token}`);
+
+    expect(res.status).toBe(200);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(res.body.data.posts).toHaveLength(2);
+    expect(res.body.data.posts.every((p: { title: string }) => p.title.startsWith('A'))).toBe(
+      true
+    );
+  });
+});
