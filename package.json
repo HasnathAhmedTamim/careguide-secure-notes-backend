@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "seed": "tsx src/scripts/seed.ts",
+    "explain": "tsx src/scripts/explain-indexes.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

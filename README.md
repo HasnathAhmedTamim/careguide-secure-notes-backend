@@ -128,6 +128,53 @@ Single pipeline: `$match` user → `$lookup` posts on `userId` → `$project` (s
 
 Posts.userId index supports the foreign-field join.
 
+## Sample requests
+
+```bash
+# Register
+curl -s -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Tamim","email":"tamim@example.com","password":"secret12","interests":["coding"]}'
+
+# Login
+curl -s -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"alice@careguide.test","password":"user1234"}'
+
+# List own notes (replace TOKEN)
+curl -s "http://localhost:5000/api/notes?page=1&limit=10" \
+  -H "Authorization: Bearer TOKEN"
+
+# Group by interests
+curl -s http://localhost:5000/api/users/grouped-by-interests \
+  -H "Authorization: Bearer TOKEN"
+
+# User posts via $lookup
+curl -s http://localhost:5000/api/users/USER_ID/posts \
+  -H "Authorization: Bearer TOKEN"
+```
+
+Example success response:
+
+```json
+{
+  "success": true,
+  "message": "Logged in successfully",
+  "data": {
+    "token": "<jwt>",
+    "user": { "id": "...", "email": "alice@careguide.test", "role": "user" }
+  }
+}
+```
+
+## Index explain (optional)
+
+```bash
+npm run explain
+```
+
+Runs `explain("executionStats")` for the main list queries so you can confirm indexes are used.
+
 ## Testing
 
 ```bash
