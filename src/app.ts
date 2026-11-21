@@ -23,6 +23,19 @@ export function createApp() {
   );
   app.use(express.json({ limit: '1mb' }));
 
+  app.get('/', (_req, res) => {
+    sendSuccess(
+      res,
+      {
+        name: 'CareGuide Secure Notes API',
+        health: '/api/health',
+        docs: 'See README for endpoint list',
+        frontend: env.FRONTEND_URL,
+      },
+      'API is running'
+    );
+  });
+
   app.get('/api/health', (_req, res) => {
     sendSuccess(res, { status: 'ok' }, 'Healthy');
   });
