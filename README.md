@@ -197,5 +197,6 @@ Whitelist your host IP (or `0.0.0.0/0` for demos) in Atlas Network Access.
 
 From env (`SEED_ADMIN_*`) plus:
 
-- `alice@careguide.test` / `user1234`
-- `bob@careguide.test` / `user1234`
+- Admin: `admin@careguide.test` / `admin123` (Sara Rahman)
+- Member: `nabila@careguide.test` / `user1234` (Nabila Hasan)
+- Member: `rafi@careguide.test` / `user1234` (Rafi Chowdhury)

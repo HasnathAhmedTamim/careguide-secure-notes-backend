@@ -10,45 +10,87 @@ async function seed() {
   await Promise.all([User.deleteMany({}), Note.deleteMany({}), Post.deleteMany({})]);
 
   const admin = await User.create({
-    name: env.SEED_ADMIN_NAME,
+    name: env.SEED_ADMIN_NAME || 'Sara Rahman',
     email: env.SEED_ADMIN_EMAIL,
     password: env.SEED_ADMIN_PASSWORD,
     role: 'admin',
-    interests: ['security', 'reading'],
+    interests: ['security', 'reading', 'operations'],
   });
 
-  const alice = await User.create({
-    name: 'Alice',
-    email: 'alice@careguide.test',
+  const nabila = await User.create({
+    name: 'Nabila Hasan',
+    email: 'nabila@careguide.test',
     password: 'user1234',
     role: 'user',
-    interests: ['chess', 'reading'],
+    interests: ['chess', 'reading', 'wellness'],
   });
 
-  const bob = await User.create({
-    name: 'Bob',
-    email: 'bob@careguide.test',
+  const rafi = await User.create({
+    name: 'Rafi Chowdhury',
+    email: 'rafi@careguide.test',
     password: 'user1234',
     role: 'user',
-    interests: ['chess', 'music'],
+    interests: ['chess', 'music', 'cooking'],
   });
 
   await Note.insertMany([
-    { title: 'Alice note', content: 'Private to Alice', userId: alice._id },
-    { title: 'Bob note', content: 'Private to Bob', userId: bob._id },
-    { title: 'Admin note', content: 'Admin own note', userId: admin._id },
+    {
+      title: 'Weekly medication reminders',
+      content:
+        'Morning: vitamin D after breakfast. Evening: review blood-pressure log before 9 PM. Share summary with clinic on Friday.',
+      userId: nabila._id,
+    },
+    {
+      title: 'Follow-up questions for Dr. Karim',
+      content:
+        'Ask about sleep schedule changes, whether evening walks are okay after dinner, and if I should continue the current dosage for two more weeks.',
+      userId: nabila._id,
+    },
+    {
+      title: 'Grocery list for recovery week',
+      content:
+        'Oats, bananas, yogurt, leafy greens, chicken, herbal tea. Avoid late-night caffeine this week.',
+      userId: rafi._id,
+    },
+    {
+      title: 'Platform ops checklist',
+      content:
+        'Review failed login alerts, rotate staging secrets monthly, and confirm Atlas IP access for the support team.',
+      userId: admin._id,
+    },
   ]);
 
   await Post.insertMany([
-    { title: 'Alice public', content: 'Hello from Alice', userId: alice._id },
-    { title: 'Alice second', content: 'Another post', userId: alice._id },
-    { title: 'Bob public', content: 'Hello from Bob', userId: bob._id },
+    {
+      title: 'Small habits that helped my focus',
+      content:
+        'I started blocking 25-minute deep-work sessions in the morning and keeping my phone in another room. The first week felt hard, but my notes are clearer now.',
+      userId: nabila._id,
+    },
+    {
+      title: 'Book recommendation: Atomic routines',
+      content:
+        'If you are rebuilding daily structure after a busy month, start with one habit only. Consistency beats intensity.',
+      userId: nabila._id,
+    },
+    {
+      title: 'Evening stretch routine',
+      content:
+        'Ten minutes of light stretching after dinner helps me sleep better. Happy to share the short sequence I use.',
+      userId: rafi._id,
+    },
+    {
+      title: 'Welcome to CareGuide Notes',
+      content:
+        'This space is for private health notes and shared community posts. Keep personal medical details in your private notes — posts are public to members.',
+      userId: admin._id,
+    },
   ]);
 
   console.log('Seed complete');
   console.log(`Admin: ${env.SEED_ADMIN_EMAIL} / ${env.SEED_ADMIN_PASSWORD}`);
-  console.log('User:  alice@careguide.test / user1234');
-  console.log('User:  bob@careguide.test / user1234');
+  console.log('User:  nabila@careguide.test / user1234');
+  console.log('User:  rafi@careguide.test / user1234');
 
   await disconnectDatabase();
 }

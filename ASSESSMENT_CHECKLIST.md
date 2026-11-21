@@ -31,6 +31,6 @@
 
 ## Manual verification notes
 
-- Seed accounts: `admin@careguide.test` / `admin123`, `alice@careguide.test` / `user1234`
+- Seed accounts: `admin@careguide.test` / `admin123`, `nabila@careguide.test` / `user1234`, `rafi@careguide.test` / `user1234`
 - Frontend: http://localhost:5173
 - API: http://localhost:5000
